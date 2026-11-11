@@ -7,6 +7,8 @@ class Layer:
     def backward(self, dvalues):
         print("Layer: This is an abstract class!")
 
+# Learnable Layers
+
 class DenseLayer(Layer):
     def __init__(self, n_inp, n_neurons):
         super().__init__()
@@ -25,3 +27,52 @@ class DenseLayer(Layer):
         # keepdims is used to maintain the shape of the array
         self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
         self.dinputs = np.dot(dvalues, self.weights.T)
+
+
+# Activation Layer
+
+# Rectified Linear Unit (ReLU)
+class ReLU(Layer):
+    def forward(self, inputs):
+        self.inputs = inputs
+        self.output = np.maximum(0, inputs)
+
+    def backwards(self, dvalues):
+        self.dinputs = dvalues.copy()
+        self.dinputs[self.inputs <= 0] = 0
+
+# Leaky ReLU (fixes the dead neuron problem - search it up)
+class LeakyReLU(Layer):
+    def __init__(self, alpha=0.05):
+        self.alpha = alpha
+
+    def forward(self, inputs):
+        self.inputs = inputs
+        self.output = np.where(inputs > 0, inputs, inputs * self.alpha) # Instead of 0 for negative numbers, a small gradient defined by alpha
+
+    def backward(self, dvalues):
+        self.dinputs = dvalues.copy()
+        self.dinputs[self.inputs <= 0] *= self.alpha # Derivative is 1 if input > 0, else alpha
+
+# Sigmoid (I just might be biased towards this)
+class Sigmoid(Layer):
+    def forward(self, inputs):
+        self.inputs = inputs
+        # It's clipped because past 500
+        # the function returns basically 1
+        # and to prevent overflow
+        self.output = 1 / (1 + np.exp(-np.clip(inputs, -500, 500))) 
+
+    def backward(self, dvalues):
+        self.dinputs = dvalues * self.output * (1 - self.output)
+
+# Tanh (technically better than sigmoid)
+class Tanh(Layer):
+    def forward(self, inputs):
+        self.inputs = inputs
+        self.output = np.tanh(inputs)
+
+    def backward(self, dvalues):
+        self.dinputs = dvalues * (1 - self.output ** 2)
+
+
