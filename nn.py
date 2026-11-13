@@ -98,3 +98,18 @@ class NeuralNetwork:
             layer.backward(current_grad)
             current_grad = layer.dinputs
 
+    def fit(self, X, y_true, epochs=1000, learning_rate=0.01, graph_loss=False):
+        for epoch in range(epochs):
+            pred = self.forward(X)
+            loss_grad = 2 * (pred - y_true) / len(X)
+            
+            self.backward(loss_grad)
+            
+            for layer in self.layers:
+                # Only update layers that actually have weights (Dense layers do, Activations don't)
+                if hasattr(layer, 'weights'):
+                    layer.weights -= learning_rate * layer.dweights
+                    layer.biases -= learning_rate * layer.dbiases
+
+    def graph(self):
+        pass
