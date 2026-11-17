@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Layer:
     def forward(self, inputs):
@@ -99,9 +100,13 @@ class NeuralNetwork:
             current_grad = layer.dinputs
 
     def fit(self, X, y_true, epochs=1000, learning_rate=0.01, graph_loss=False):
+        loss_list = []
         for epoch in range(epochs):
             pred = self.forward(X)
             loss_grad = 2 * (pred - y_true) / len(X)
+
+            loss = np.mean((pred - y_true) ** 2)
+            loss_list.append(loss)
             
             self.backward(loss_grad)
             
@@ -111,5 +116,10 @@ class NeuralNetwork:
                     layer.weights -= learning_rate * layer.dweights
                     layer.biases -= learning_rate * layer.dbiases
 
-    def graph(self):
-        pass
+        if graph_loss == True:
+            plt.plot(range(epochs), loss_list)
+            plt.xlabel("Epoch")
+            plt.ylabel("Loss")
+            plt.title("Training Loss over Time")
+            plt.savefig("loss.png")
+            plt.show()

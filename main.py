@@ -11,6 +11,6 @@ nn.add(LeakyReLU())
 nn.add(DenseLayer(10, 1))
 
 # Train
-nn.fit(X, y_true, 100000)
+nn.fit(X, y_true, 100, graph_loss=True)
 
 print(f"Final Predictions: \n{nn.forward(X)}")
